@@ -17,6 +17,7 @@ func NewLogger() *Logger {
 	return &Logger{errorOnly: false}
 }
 
+// SetErrorOnly onyl outputs messages if they are an error
 func (l *Logger) SetErrorOnly(errorOnly bool) {
 	l.errorOnly = errorOnly
 }
