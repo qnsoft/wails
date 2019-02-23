@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"github.com/leaanthony/spinner"
 	"github.com/wailsapp/wails/cmd"
@@ -54,20 +55,22 @@ func init() {
 			updateSpinner := spinner.NewSpinner()
 			updateSpinner.SetSpinSpeed(40)
 			updateSpinner.Start("Updating to  : " + latestVersion)
-			err = cmd.NewProgramHelper().RunCommandArray([]string{"go", "get", "github.com/wailsapp/wails/cmd/wails"})
+			err = cmd.NewProgramHelper().RunCommandArray([]string{"go", "get", "-u", "-a", "github.com/wailsapp/wails/cmd/wails"})
 			if err != nil {
 				updateSpinner.Error(err.Error())
 				return err
 			}
-			updateSpinner.Success()
 			version, _, err := cmd.NewProgramHelper().GetOutputFromCommand("wails version")
+			version = strings.TrimSpace(version)
 			if err != nil {
 				updateSpinner.Error(err.Error())
 				return err
 			}
 			if version != latestVersion {
+				updateSpinner.Error()
 				logger.Yellow("Weird! Wails was supposed to update to %s but seems to be at %s instead.", latestVersion, version)
 			} else {
+				updateSpinner.Success()
 				logger.Green("Success! Wails updated to " + version)
 			}
 		} else {

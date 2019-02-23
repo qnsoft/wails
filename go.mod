@@ -11,14 +11,14 @@ require (
 	github.com/leaanthony/mewn v0.9.1
 	github.com/leaanthony/slicer v1.0.0
 	github.com/leaanthony/spinner v0.5.0
-	github.com/mattn/go-colorable v0.1.0 // indirect
+	github.com/mattn/go-colorable v0.1.1 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/sirupsen/logrus v1.3.0
 	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/wailsapp/webview v0.2.5
-	golang.org/x/crypto v0.0.0-20190219172222-a4c6cb3142f2 // indirect
+	golang.org/x/crypto v0.0.0-20190222235706-ffb98f73852f // indirect
 	golang.org/x/net v0.0.0-20190213061140-3a22650c66bd // indirect
-	golang.org/x/sys v0.0.0-20190222072716-a9d3bda3a223 // indirect
+	golang.org/x/sys v0.0.0-20190222171317-cd391775e71e // indirect
 )
