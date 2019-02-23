@@ -54,7 +54,7 @@ func init() {
 			updateSpinner := spinner.NewSpinner()
 			updateSpinner.SetSpinSpeed(40)
 			updateSpinner.Start("Updating to  : " + latestVersion)
-			err = cmd.NewProgramHelper().RunCommandArray([]string{"go", "get", "github.com/wailsapp/wails/cmd/wails@" + latestVersion})
+			err = cmd.NewProgramHelper().RunCommandArray([]string{"go", "get", "github.com/wailsapp/wails/cmd/wails"})
 			if err != nil {
 				updateSpinner.Error(err.Error())
 				return err
@@ -65,7 +65,11 @@ func init() {
 				updateSpinner.Error(err.Error())
 				return err
 			}
-			logger.Yellow("Wails updated to " + version)
+			if version != latestVersion {
+				logger.Yellow("Weird! Wails was supposed to update to %s but seems to be at %s instead.", latestVersion, version)
+			} else {
+				logger.Green("Success! Wails updated to " + version)
+			}
 		} else {
 			logger.Yellow("Looks like you're up to date!")
 		}
