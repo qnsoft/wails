@@ -108,6 +108,7 @@ func checkLibraries() (errors bool, err error) {
 					logger.Green("Library '%s' installed.", library.Name)
 				}
 			default:
+				fmt.Printf("here 2. DistroInfo = %+v\n", distroInfo)
 				return false, fmt.Errorf("unable to check libraries on distribution '%s'. Please ensure that the '%s' equivalent is installed", distroInfo.DistributorID, library.Name)
 			}
 		}
