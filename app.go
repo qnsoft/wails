@@ -2,6 +2,7 @@ package wails
 
 import (
 	"os"
+	"runtime"
 	"syscall"
 
 	"github.com/syossan27/tebata"
@@ -43,7 +44,7 @@ func CreateApp(optionalConfig ...*AppConfig) *App {
 	}
 
 	result := &App{
-		logLevel:       "info",
+		logLevel:       "debug",
 		renderer:       renderer.NewWebView(),
 		ipc:            ipc.NewManager(),
 		bindingManager: binding.NewManager(),
@@ -100,6 +101,11 @@ func (a *App) start() error {
 	err := a.renderer.Initialise(a.config, a.ipc, a.eventManager)
 	if err != nil {
 		return err
+	}
+
+	// Set debug mode
+	if runtime.GOOS == "windows" && BuildMode == cmd.BuildModeDebug {
+		a.renderer.EnableDebug()
 	}
 
 	// Start signal handler

@@ -3,11 +3,12 @@
 const path = require('path');
 
 module.exports = {
-  entry: './core/main',
+  entry: './main.js',
   mode: 'production',
   output: {
-    path: path.resolve(__dirname, '..', 'assets'),
-    filename: 'wails.js'
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'main.js',
+    libraryTarget: 'this'
   },
   module: {
     rules: [

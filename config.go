@@ -94,12 +94,12 @@ func (a *AppConfig) merge(in *AppConfig) error {
 // Creates the default configuration
 func newConfig(userConfig *AppConfig) (*AppConfig, error) {
 	result := &AppConfig{
-		Width:     800,
-		Height:    600,
-		Resizable: true,
-		Title:     "My Wails App",
-		Colour:    "#FFF", // White by default
-		HTML:      mewn.String("./runtime/assets/default.html"),
+		Width:       800,
+		Height:      600,
+		Resizable:   true,
+		Title:       "My Wails App",
+		Colour:      "#FFF", // White by default
+		defaultHTML: mewn.String("./runtime/assets/default.html"),
 	}
 
 	if userConfig != nil {

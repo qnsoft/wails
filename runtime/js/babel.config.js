@@ -7,7 +7,7 @@ module.exports = function (api) {
     [
       "@babel/preset-env",
       {
-        "useBuiltIns": "entry",
+        "useBuiltIns": "usage",
         "corejs": {
           "version": 3,
           "proposals": true
@@ -16,7 +16,10 @@ module.exports = function (api) {
     ]
   ];
 
+  const plugins = ["@babel/plugin-transform-object-assign", "transform-es2015-shorthand-properties"]
+
   return {
     presets,
+    plugins
   };
 }

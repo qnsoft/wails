@@ -48,6 +48,9 @@ type Bridge struct {
 
 	// Mutex for writing to the socket
 	lock sync.Mutex
+
+	// debug
+	debug bool
 }
 
 // Initialise the Bridge Renderer
@@ -72,6 +75,11 @@ func (h *Bridge) evalJS(js string, mtype messageType) error {
 	}
 
 	return nil
+}
+
+// EnableDebug enables debug!
+func (h *Bridge) EnableDebug() {
+	h.debug = true
 }
 
 func (h *Bridge) injectCSS(css string) {
@@ -117,7 +125,6 @@ func (h *Bridge) sendMessage(conn *websocket.Conn, msg string) {
 
 func (h *Bridge) start(conn *websocket.Conn) {
 
-	// set external.invoke
 	h.log.Infof("Connected to frontend.")
 
 	wailsRuntime := mewn.String("../../runtime/assets/wails.js")

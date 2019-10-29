@@ -17,3 +17,4 @@ cmd/wails/wails
 .DS_Store
 tmp
 node_modules/
+/runtime/js/runtime/dist

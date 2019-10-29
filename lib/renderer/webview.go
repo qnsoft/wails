@@ -25,6 +25,7 @@ type WebView struct {
 	config       interfaces.AppConfig
 	eventManager interfaces.EventManager
 	bindingCache []string
+	debug        bool
 }
 
 // NewWebView returns a new WebView struct
@@ -48,13 +49,22 @@ func (w *WebView) Initialise(config interfaces.AppConfig, ipc interfaces.IPCMana
 	// Save the config
 	w.config = config
 
+	// defaulthtml
+	HTML := config.GetDefaultHTML()
+	if len(HTML) == 0 {
+		HTML = mewn.String("../../runtime/assets/default.html")
+	}
+
+	HTML = fmt.Sprintf("data:text/html,%s", HTML)
+	fmt.Printf("*** %s ***", HTML)
+	w.log.Infof("URL: %s", HTML)
 	// Create the WebView instance
 	w.window = wv.NewWebview(wv.Settings{
 		Width:     config.GetWidth(),
 		Height:    config.GetHeight(),
 		Title:     config.GetTitle(),
 		Resizable: config.GetResizable(),
-		URL:       config.GetDefaultHTML(),
+		URL:       HTML,
 		Debug:     !config.GetDisableInspector(),
 		ExternalInvokeCallback: func(_ wv.WebView, message string) {
 			w.ipc.Dispatch(message)
@@ -95,12 +105,18 @@ func (w *WebView) evalJS(js string) error {
 	if len(js) > 45 {
 		outputJS += "..."
 	}
+	// var outputJS = js
 	w.log.DebugFields("Eval", logger.Fields{"js": outputJS})
 	//
 	w.window.Dispatch(func() {
 		w.window.Eval(js)
 	})
 	return nil
+}
+
+// EnableDebug enables debug!
+func (w *WebView) EnableDebug() {
+	w.debug = true
 }
 
 // Escape the Javascripts!
@@ -172,51 +188,58 @@ func (w *WebView) Run() error {
 
 	w.log.Info("Running...")
 
-	// Runtime assets
-	wailsRuntime := mewn.String("../../runtime/assets/wails.js")
-	w.evalJS(wailsRuntime)
+	// Inject firebug in debug mode on Windows
+	if w.debug {
+		w.log.Debug("Injecting firebug")
+		// firebugLite := mewn.String("../../runtime/assets/injectFirebug.js")
+		// w.evalJS(firebugLite)
+	}
 
-	// Ping the wait channel when the wails runtime is loaded
-	w.eventManager.On("wails:loaded", func(...interface{}) {
+	// // Runtime assets
+	// wailsRuntime := mewn.String("../../runtime/assets/wails.js")
+	// w.evalJS(wailsRuntime)
 
-		// Run this in a different go routine to free up the main process
-		go func() {
+	// // Ping the wait channel when the wails runtime is loaded
+	// w.eventManager.On("wails:loaded", func(...interface{}) {
 
-			// Inject Bindings
-			for _, binding := range w.bindingCache {
-				w.evalJSSync(binding)
-			}
+	// 	// Run this in a different go routine to free up the main process
+	// 	go func() {
 
-			// Inject user CSS
-			if w.config.GetCSS() != "" {
-				outputCSS := fmt.Sprintf("%.45s", w.config.GetCSS())
-				if len(outputCSS) > 45 {
-					outputCSS += "..."
-				}
-				w.log.DebugFields("Inject User CSS", logger.Fields{"css": outputCSS})
-				w.injectCSS(w.config.GetCSS())
-			} else {
-				// Use default wails css
-				w.log.Debug("Injecting Default Wails CSS")
-				defaultCSS := mewn.String("../../runtime/assets/wails.css")
+	// 		// Inject Bindings
+	// 		for _, binding := range w.bindingCache {
+	// 			w.evalJSSync(binding)
+	// 		}
 
-				w.injectCSS(defaultCSS)
-			}
+	// 		// Inject user CSS
+	// 		if w.config.GetCSS() != "" {
+	// 			outputCSS := fmt.Sprintf("%.45s", w.config.GetCSS())
+	// 			if len(outputCSS) > 45 {
+	// 				outputCSS += "..."
+	// 			}
+	// 			w.log.DebugFields("Inject User CSS", logger.Fields{"css": outputCSS})
+	// 			w.injectCSS(w.config.GetCSS())
+	// 		} else {
+	// 			// Use default wails css
+	// 			w.log.Debug("Injecting Default Wails CSS")
+	// 			defaultCSS := mewn.String("../../runtime/assets/wails.css")
 
-			// Inject user JS
-			if w.config.GetJS() != "" {
-				outputJS := fmt.Sprintf("%.45s", w.config.GetJS())
-				if len(outputJS) > 45 {
-					outputJS += "..."
-				}
-				w.log.DebugFields("Inject User JS", logger.Fields{"js": outputJS})
-				w.evalJSSync(w.config.GetJS())
-			}
+	// 			w.injectCSS(defaultCSS)
+	// 		}
 
-			// Emit that everything is loaded and ready
-			w.eventManager.Emit("wails:ready")
-		}()
-	})
+	// 		// Inject user JS
+	// 		if w.config.GetJS() != "" {
+	// 			outputJS := fmt.Sprintf("%.45s", w.config.GetJS())
+	// 			if len(outputJS) > 45 {
+	// 				outputJS += "..."
+	// 			}
+	// 			w.log.DebugFields("Inject User JS", logger.Fields{"js": outputJS})
+	// 			w.evalJSSync(w.config.GetJS())
+	// 		}
+
+	// 		// Emit that everything is loaded and ready
+	// 		w.eventManager.Emit("wails:ready")
+	// 	}()
+	// })
 
 	// Kick off main window loop
 	w.window.Run()
