@@ -58,6 +58,7 @@ extern "C"
 #elif defined(WEBVIEW_WINAPI)
 #define CINTERFACE
 #include <windows.h>
+#include <tchar.h>
 
 #include <commctrl.h>
 #include <exdisp.h>
@@ -1350,8 +1351,8 @@ struct webview_priv
   }
 
 #define WEBVIEW_KEY_FEATURE_BROWSER_EMULATION \
-  "Software\\Microsoft\\Internet "            \
-  "Explorer\\Main\\FeatureControl\\FEATURE_BROWSER_EMULATION"
+  _T("Software\\Microsoft\\Internet "            \
+  "Explorer\\Main\\FeatureControl\\FEATURE_BROWSER_EMULATION")
 
   static int webview_fix_ie_compat_mode()
   {
@@ -1363,7 +1364,7 @@ struct webview_priv
     {
       return -1;
     }
-    for (p = &appname[strlen(appname) - 1]; p != appname && *p != '\\'; p--)
+    for (p = &appname[_tcslen(appname) - 1]; p != appname && *p != _T('\\'); p--)
     {
     }
     p++;
@@ -1872,14 +1873,30 @@ struct webview_priv
         type |= MB_ICONERROR;
         break;
       }
+  #ifdef UNICODE
+      WCHAR *wtitle = webview_to_utf16(title);
+      WCHAR *warg = webview_to_utf16(arg);
+      MessageBox(w->priv.hwnd, warg, wtitle, type);
+      GlobalFree(warg);
+      GlobalFree(wtitle);
+  #else
       MessageBox(w->priv.hwnd, arg, title, type);
+  #endif
 #endif
     }
   }
 
   WEBVIEW_API void webview_terminate(struct webview *w) { PostQuitMessage(0); }
   WEBVIEW_API void webview_exit(struct webview *w) { OleUninitialize(); }
-  WEBVIEW_API void webview_print_log(const char *s) { OutputDebugString(s); }
+  WEBVIEW_API void webview_print_log(const char *s) {
+  #ifdef UNICODE
+    WCHAR *ws = webview_to_utf16(s);
+    OutputDebugString(ws); 
+    GlobalFree(ws);
+  #else
+    OutputDebugString(s); 
+  #endif
+  }
 
 #endif /* WEBVIEW_WINAPI */
 
